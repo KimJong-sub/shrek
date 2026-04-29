@@ -1,22 +1,70 @@
 import streamlit as st
-import requests
-from datetime import datetime
 
-# 페이지 설정 (핸드폰에서 보기 좋게 넓이 조정)
-st.set_page_config(page_title="부대 기상 브리핑", layout="centered")
+# =========================================================
+# 지역 정보 딕셔너리
+# =========================================================
+REGION_DATA = {
+    "서울특별시": {
+        "종로구": (60, 127, ["서울", "경기"]),
+        "중구": (60, 127, ["서울", "경기"]),
+        "강남구": (61, 126, ["서울", "경기"]),
+        "송파구": (62, 125, ["서울", "경기"]),
+    },
+    "부산광역시": {
+        "중구": (98, 76, ["부산", "경남"]),
+        "해운대구": (99, 75, ["부산", "경남"]),
+        "남구": (98, 76, ["부산", "경남"]),
+    },
+    "대전광역시": {
+        "동구": (67, 100, ["대전", "충청", "세종"]),
+        "중구": (67, 100, ["대전", "충청", "세종"]),
+        "서구": (67, 100, ["대전", "충청", "세종"]),
+        "유성구": (67, 101, ["대전", "충청", "세종"]),
+    },
+    "충청북도": {
+        "청주시": (69, 106, ["충청", "충북"]),
+        "충주시": (76, 114, ["충청", "충북"]),
+        "제천시": (81, 119, ["충청", "충북"]),
+    },
+    "경기도": {
+        "수원시": (60, 121, ["경기"]),
+        "성남시": (62, 123, ["경기"]),
+        "고양시": (57, 128, ["경기"]),
+        "용인시": (62, 120, ["경기"]),
+    },
+    "제주특별자치도": {
+        "제주시": (52, 38, ["제주"]),
+        "서귀포시": (52, 33, ["제주"]),
+    }
+}
 
-# --- 여기에 기존에 작성하신 REGION_DATA, call_api, analyze_fire_risk 등 함수를 복사해 넣으세요 ---
+
+# =========================================================
+# Streamlit UI
+# =========================================================
+st.set_page_config(page_title="부대 안전 기상 브리핑", layout="centered")
 
 st.title("🌤️ 부대 안전 기상 브리핑")
+st.caption("지역과 시/군/구를 선택한 뒤 날씨를 조회하세요.")
 
-# 1. 사이드바 또는 메인 화면에 지역 선택 UI 구성
+# 지역 선택
 sido = st.selectbox("지역 선택", list(REGION_DATA.keys()))
-sigungu = st.selectbox("시/군/구 선택", list(REGION_DATA[sido].keys()))
 
+# 시/군/구 선택
+sigungu = st.selectbox(
+    "시/군/구 선택",
+    list(REGION_DATA[sido].keys())
+)
+
+# 조회 버튼
 if st.button("날씨 조회하기"):
-    # 2. 기존 fetch_and_render 함수 로직 실행
-    nx, ny, kw = REGION_DATA[sido][sigungu]
-    
-    # 결과 데이터를 st.markdown()을 사용하여 HTML로 출력
-    # (앞서 만든 HTML 코드를 그대로 사용하되 display(HTML(...)) 대신 st.markdown(..., unsafe_allow_html=True) 사용)
-    st.markdown(html_code, unsafe_allow_html=True)
+    nx, ny, warn_keywords = REGION_DATA[sido][sigungu]
+
+    st.success(f"선택 지역: {sido} {sigungu}")
+
+    st.write("### 지역 정보")
+    st.write(f"- 격자 좌표 NX: {nx}")
+    st.write(f"- 격자 좌표 NY: {ny}")
+    st.write(f"- 기상 특보 키워드: {', '.join(warn_keywords)}")
+
+    st.info("여기에 기상청 API 연동 코드(fetch_and_render)를 연결하면 됩니다.")
